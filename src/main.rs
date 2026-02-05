@@ -28,8 +28,17 @@ fn main() {
 
     for line in file_contents.lines() {
         let mut c = line.bytes();
-        assert_eq!(c.next().unwrap(), b'O');
-        c.next();
+
+        match c.next() {
+            Some(b'O') => (),
+            Some(_) => continue,
+            None => continue,
+        }
+
+        if c.next() != Some(b' ') {
+            continue;
+        }
+
         let mut acc = 0;
         for d in c.by_ref() {
             if d == b' ' {
@@ -60,8 +69,9 @@ fn main() {
                 panic!()
             }
         } else if code_start == b'R' && c.next().unwrap() == b'E' && c.next().unwrap() == b'C' {
+            // TODO: detect use after free & double free
             if objs.remove(&acc).is_none() {
-                panic!()
+                panic!("object {acc} not found")
             }
         }
     }
